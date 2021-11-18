@@ -44,9 +44,10 @@ COPY --chown=${UID}:${GID} --from=builder $NIFI_BASE_DIR $NIFI_BASE_DIR
 
 RUN groupadd -g ${GID} nifi || groupmod -n nifi `getent group ${GID} | cut -d: -f1` \
     && useradd --shell /bin/bash -u ${UID} -g ${GID} -m nifi \
+    && curl -fsSL https://deb.nodesource.com/setup_16.x | bash - \
     && apt-get update \
     && apt-get upgrade -y \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends jq xmlstarlet procps libsnappy-jni nodejs yarn python3 python3-pip \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends jq xmlstarlet procps libsnappy-java libsnappy-jni nodejs python3 python3-pip \
     && update-alternatives --install /usr/bin/python python /usr/bin/python3 1 \
     && rm -rf /var/lib/apt/lists/* 
 
