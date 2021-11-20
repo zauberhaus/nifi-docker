@@ -33,6 +33,9 @@ FROM openjdk:11-jre
 ARG UID=1000
 ARG GID=1000
 
+ARG GSON_VERSION=2.8.9
+ARG SENTRY_VERSION=5.4.1
+
 ENV NIFI_BASE_DIR /opt/nifi
 ENV NIFI_HOME ${NIFI_BASE_DIR}/nifi-current
 ENV NIFI_TOOLKIT_HOME ${NIFI_BASE_DIR}/nifi-toolkit-current
@@ -52,6 +55,21 @@ RUN groupadd -g ${GID} nifi || groupmod -n nifi `getent group ${GID} | cut -d: -
     && rm -rf /var/lib/apt/lists/* 
 
 USER nifi
+
+RUN wget -q -O ${NIFI_HOME}/lib/gson-${GSON_VERSION}.jar https://repo1.maven.org/maven2/com/google/code/gson/gson/${GSON_VERSION}/gson-${GSON_VERSION}.jar \
+    && chmod 664 ${NIFI_HOME}/lib/gson-${GSON_VERSION}.jar \
+    && ln -s ${NIFI_HOME}/lib/gson-${GSON_VERSION}.jar ${NIFI_HOME}/lib/bootstrap 
+
+RUN wget -q -O ${NIFI_HOME}/lib/sentry-${SENTRY_VERSION}.jar https://repo1.maven.org/maven2/io/sentry/sentry/${SENTRY_VERSION}/sentry-${SENTRY_VERSION}.jar \
+    && chmod 664 ${NIFI_HOME}/lib/sentry-${SENTRY_VERSION}.jar \
+    && ln -s ${NIFI_HOME}/lib/sentry-${SENTRY_VERSION}.jar ${NIFI_HOME}/lib/bootstrap 
+
+RUN wget -q -O ${NIFI_HOME}/lib/sentry-logback-${SENTRY_VERSION}.jar https://repo1.maven.org/maven2/io/sentry/sentry-logback/${SENTRY_VERSION}/sentry-logback-${SENTRY_VERSION}.jar \
+    && chmod 664 ${NIFI_HOME}/lib/sentry-logback-${SENTRY_VERSION}.jar \
+    && ln -s ${NIFI_HOME}/lib/sentry-logback-${SENTRY_VERSION}.jar ${NIFI_HOME}/lib/bootstrap 
+
+ENV SENTRY_DSN=
+ENV SENTRY_LOG_LEVEL NONE
 
 RUN echo "#!/bin/sh\n" > $NIFI_HOME/bin/nifi-env.sh
 
